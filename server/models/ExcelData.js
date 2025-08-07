@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const excelDataSchema = new mongoose.Schema({
   data: [{}], // array of objects
+  originalName: String,
   uploadedBy: String,
   uploadedAt: {
     type: Date,
