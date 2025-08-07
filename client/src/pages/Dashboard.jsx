@@ -57,6 +57,15 @@ const Dashboard = () => {
               Role: {user.role.toUpperCase()}
             </span>
           )}
+          {/* Show only for admin */}
+          {user?.role === "admin" && (
+            <button
+              onClick={() => navigate("/admin")}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition"
+            >
+              Admin Dashboard
+            </button>
+          )}
           <button
             onClick={logout}
             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
