@@ -1,74 +1,23 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../context/AuthContext";
+import UploadSection from "../components/UploadSection";
 import { Link } from "react-router-dom";
 
-const Dashboard = () => {
-  const [user, setUser] = useState(null);
-  const [file, setFile] = useState(null);
-  const [status, setStatus] = useState("");
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return navigate("/login");
-
-    const decode = JSON.parse(atob(token.split(".")[1]));
-    setUser(decode);
-  }, []);
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
-  const handleUpload = async () => {
-    if (!file) return alert("No file selected");
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.post(
-        "http://localhost:5000/api/excel/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setStatus(res.data.msg);
-    } catch (err) {
-      setStatus(err.response?.data?.msg || "Upload failed");
-    }
-  };
+export default function Dashboard() {
+  const { user, logout } = useContext(AuthContext);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Top Bar */}
-      <header className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-blue-700">Dashboard</h1>
-        <div className="flex items-center space-x-4">
-          {user && (
-            <span className="text-gray-700 font-medium">
-              Role: {user.role.toUpperCase()}
-            </span>
-          )}
-          {/* Show only for admin */}
-          {user?.role === "admin" && (
-            <button
-              onClick={() => navigate("/admin")}
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition"
-            >
-              Admin Dashboard
-            </button>
-          )}
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      {/* Header */}
+      <header className="flex justify-between items-center bg-white shadow px-6 py-4">
+        <h1 className="text-xl font-semibold text-gray-700">
+          Dashboard - Welcome, {user.username}
+        </h1>
+        <div className="space-x-4">
           <button
             onClick={logout}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
           >
             Logout
           </button>
@@ -76,45 +25,26 @@ const Dashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow flex items-center justify-center px-4">
-        <a
-          href="/history"
-          className="mt-6 inline-block text-blue-600 hover:underline font-medium"
-        >
-          View Upload History
-        </a>
-        <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-xl text-center">
-          <h2 className="text-xl font-semibold mb-6 text-gray-800">
-            Upload Excel File
-          </h2>
-
-          <input
-            type="file"
-            accept=".xlsx"
-            onChange={(e) => setFile(e.target.files[0])}
-            className="block w-full mb-4 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0
-              file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
-          />
-
-          <button
-            onClick={handleUpload}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"
+      <main className="flex-grow p-6">
+        <UploadSection />
+        <div>
+          {" "}
+          <Link
+            to="/upload-history"
+            className="inline-block px-4 py-2 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 text-gray-800 font-medium rounded-md border border-gray-300 hover:from-gray-300 hover:via-gray-400 hover:to-gray-500 transition duration-200"
           >
-            Upload
-          </button>
-
-          {status && (
-            <p className="mt-4 text-green-600 font-medium">{status}</p>
-          )}
+            Upload History
+          </Link>
         </div>
+        <div>
+          <Link
+            to="/visualize"
+            className="inline-block px-4 py-2 bg-gradient-to-r from-blue-200 via-blue-300 to-blue-400 text-blue-800 font-medium rounded-md border border-blue-300 hover:from-blue-300 hover:via-blue-400 hover:to-blue-500 transition duration-200"
+          >
+            Data Visualization
+          </Link>
+          </div>
       </main>
-
-      {/* Optional Footer */}
-      <footer className="text-center text-sm text-gray-500 py-4">
-        &copy; {new Date().getFullYear()} MERN Auth Dashboard
-      </footer>
     </div>
   );
-};
-
-export default Dashboard;
+}
